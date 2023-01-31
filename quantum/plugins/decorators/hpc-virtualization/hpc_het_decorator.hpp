@@ -30,6 +30,7 @@ protected:
   int n_virtual_qpus = 1;
   // The MPI communicator for each QPU
   std::shared_ptr<ProcessGroup> qpuComm;
+  std::shared_ptr<std::vector<std::shared_ptr<Accelerator>>> shared_qpus;
 
 public:
   void initialize(const HeterogeneousMap &params = {}) override;

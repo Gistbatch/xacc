@@ -24,16 +24,11 @@ namespace quantum {
 void HPCHetDecorator::initialize(const HeterogeneousMap &params) {
   decoratedAccelerator->initialize(params);
 
-  if (params.keyExists<int>("n-virtual-qpus")) {
-    if (qpuComm && n_virtual_qpus != params.get<int>("n-virtual-qpus")) {
-      // We don't support changing the number of virtual QPU's
-      // i.e. between xacc::Initialize and xacc::Finalize,
-      // we must use an HPCVirtDecorator with a consistent number of virtual
-      // QPU's.
-      xacc::error(
-          "Dynamically changing the number of virtual QPU's is not supported.");
-    }
-    n_virtual_qpus = params.get<int>("n-virtual-qpus");
+  if (params.pointerLikeExists<std::vector<std::shared_ptr<Accelerator>>>("shared-qpus")) {
+    auto tmp_qpus = params.getPointerLike<std::vector<std::shared_ptr<Accelerator>>>("shared-qpus");
+    shared_qpus = std::make_shared<std::vector<std::shared_ptr<Accelerator>>>(*tmp_qpus);
+    n_virtual_qpus = shared_qpus->size();
+    xacc::info("Number of shared accelerators: " + std::to_string(n_virtual_qpus));
   }
 }
 
@@ -110,7 +105,7 @@ void HPCHetDecorator::execute(
   // Give that sub communicator to the accelerator
   void *qpu_comm_ptr =
       reinterpret_cast<void *>(qpuComm->getMPICommProxy().getRef<MPI_Comm>());
-  decoratedAccelerator->updateConfiguration(
+  shared_qpus->at(color)->updateConfiguration(
       {{"mpi-communicator", qpu_comm_ptr}});
 
   // get the number of sub-communicators
@@ -123,7 +118,8 @@ void HPCHetDecorator::execute(
 
   // Create a local buffer and execute
   auto my_buffer = xacc::qalloc(buffer->size());
-  decoratedAccelerator->execute(my_buffer, my_circuits);
+  xacc::warning("Calling Execute...");
+  shared_qpus->at(color)->execute(my_buffer, my_circuits);
 
   // Split world along rank-0 in each sub-communicator and reduce the local
   // energies
