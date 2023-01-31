@@ -27,3 +27,6 @@ configure_file(tnqvm_h4_chain_8qbit_adapt_gs.in.cpp
 
 add_executable(h4_chain_8qbit_hpc_virt ${CMAKE_BINARY_DIR}/quantum/examples/hpc_virtualization/tnqvm_h4_chain_8qbit_adapt_gs.cpp)
 target_link_libraries(h4_chain_8qbit_hpc_virt PRIVATE xacc xacc-quantum-gate)
+
+add_executable(heterogenous_qpu heterogenous_qpu.cpp)
+target_link_libraries(heterogenous_qpu PRIVATE xacc xacc-quantum-gate)
