@@ -1,3 +1,4 @@
+
 /*******************************************************************************
  * Copyright (c) 2019 UT-Battelle, LLC.
  * All rights reserved. This program and the accompanying materials
@@ -11,7 +12,7 @@
  *   Alexander J. McCaskey - initial API and implementation
  *   Daniel Claudino - MPI native implementation
  *******************************************************************************/
-#include "hpc_virt_decorator.hpp"
+#include "hpc_het_decorator.hpp"
 #include "InstructionIterator.hpp"
 #include "Utils.hpp"
 #include "xacc.hpp"
@@ -20,7 +21,7 @@
 namespace xacc {
 namespace quantum {
 
-void HPCVirtDecorator::initialize(const HeterogeneousMap &params) {
+void HPCHetDecorator::initialize(const HeterogeneousMap &params) {
   decoratedAccelerator->initialize(params);
 
   if (params.keyExists<int>("n-virtual-qpus")) {
@@ -36,11 +37,11 @@ void HPCVirtDecorator::initialize(const HeterogeneousMap &params) {
   }
 }
 
-void HPCVirtDecorator::updateConfiguration(const HeterogeneousMap &config) {
+void HPCHetDecorator::updateConfiguration(const HeterogeneousMap &config) {
   decoratedAccelerator->updateConfiguration(config);
 }
 
-void HPCVirtDecorator::execute(
+void HPCHetDecorator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::shared_ptr<CompositeInstruction> function) {
 
@@ -50,7 +51,7 @@ void HPCVirtDecorator::execute(
   return;
 }
 
-void HPCVirtDecorator::execute(
+void HPCHetDecorator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<CompositeInstruction>> functions) {
 
@@ -263,3 +264,4 @@ void HPCVirtDecorator::execute(
 
 } // namespace quantum
 } // namespace xacc
+
