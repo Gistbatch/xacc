@@ -31,12 +31,6 @@ int main(int argc, char **argv) {
       accelerators.push_back(accelerator);
   }
 
-  // if (params.pointerLikeExists<std::vector<std::string>>("additional-qpus")) {
-  //   auto additional_qpu_names = *params.getPointerLike<std::vector<std::string>>("additional-qpus");
-    
-  //   n_virtual_qpus = qpus.size();
-  // }
-
   // Decorate the accelerator with HPC Virtualization.
   // This decorator assumes the provided number of input QPUs
   // available to a distributed hetereogeneous system. It will
