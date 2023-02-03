@@ -30,3 +30,6 @@ target_link_libraries(h4_chain_8qbit_hpc_virt PRIVATE xacc xacc-quantum-gate)
 
 add_executable(heterogenous_qpu heterogenous_qpu.cpp)
 target_link_libraries(heterogenous_qpu PRIVATE xacc xacc-quantum-gate)
+
+add_executable(async_qpu async_qpu.cpp)
+target_link_libraries(async_qpu PRIVATE xacc)
