@@ -31,9 +31,7 @@ void HPCAsyncDecorator::updateConfiguration(const HeterogeneousMap &config) {
 void HPCAsyncDecorator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::shared_ptr<CompositeInstruction> function) {
-  xacc::info("call execute");
   if (decoratedAccelerator) {
-    xacc::info("call if");
     callReference = std::async(std::launch::async, [&] {
       decoratedAccelerator->execute(buffer, function);
     });
@@ -45,7 +43,6 @@ void HPCAsyncDecorator::execute(
 void HPCAsyncDecorator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<CompositeInstruction>> functions) {
-  xacc::info("call executes");
   if (decoratedAccelerator) {
     callReference = std::async(std::launch::async, [&] {
       decoratedAccelerator->execute(buffer, functions);
