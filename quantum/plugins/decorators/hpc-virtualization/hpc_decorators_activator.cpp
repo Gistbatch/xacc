@@ -9,7 +9,9 @@
  *
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
+ *	 Philipp Seitz - extended API
  *******************************************************************************/
+#include "hpc_async_decorator.hpp"
 #include "hpc_het_decorator.hpp"
 #include "hpc_virt_decorator.hpp"
 
@@ -32,14 +34,18 @@ public:
 	}
 
 	void Start(BundleContext context) {
-		auto c1 = std::make_shared<xacc::quantum::HPCHetDecorator>();
-		auto c2 = std::make_shared<xacc::quantum::HPCVirtDecorator>();
+		auto c1 = std::make_shared<xacc::quantum::HPCAsyncDecorator>();
+		auto c2 = std::make_shared<xacc::quantum::HPCHetDecorator>();
+		auto c3 = std::make_shared<xacc::quantum::HPCVirtDecorator>();
 
 		context.RegisterService<xacc::AcceleratorDecorator>(c1);
         context.RegisterService<xacc::Accelerator>(c1);
 
         context.RegisterService<xacc::AcceleratorDecorator>(c2);
         context.RegisterService<xacc::Accelerator>(c2);
+
+		context.RegisterService<xacc::AcceleratorDecorator>(c3);
+        context.RegisterService<xacc::Accelerator>(c3);
 	}
 
 	/**
