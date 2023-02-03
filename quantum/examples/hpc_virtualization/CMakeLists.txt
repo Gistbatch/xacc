@@ -33,3 +33,6 @@ target_link_libraries(heterogenous_qpu PRIVATE xacc xacc-quantum-gate)
 
 add_executable(async_qpu async_qpu.cpp)
 target_link_libraries(async_qpu PRIVATE xacc)
+
+add_executable(scheduled_qpu scheduled_qpu.cpp)
+target_link_libraries(scheduled_qpu PRIVATE xacc)
