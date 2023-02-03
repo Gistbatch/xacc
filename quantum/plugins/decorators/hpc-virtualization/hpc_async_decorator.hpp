@@ -28,7 +28,6 @@ class HPCAsyncDecorator : public AcceleratorDecorator {
 protected:
   std::future<void> callReference;
   HeterogeneousMap decorator_properties;
-  const int test = 1;
 
 public:
   void initialize(const HeterogeneousMap &params = {}) override;
