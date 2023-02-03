@@ -11,6 +11,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *   Daniel Claudino - MPI native implementation
+ *   Philipp Seitz - Async
  *******************************************************************************/
 #ifndef XACC_HPC_HET_DECORATOR_HPP_
 #define XACC_HPC_HET_DECORATOR_HPP_

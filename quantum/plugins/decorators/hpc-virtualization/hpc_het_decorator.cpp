@@ -11,6 +11,7 @@
  * Contributors:
  *   Alexander J. McCaskey - initial API and implementation
  *   Daniel Claudino - MPI native implementation
+ *   Philipp Seitz - Async
  *******************************************************************************/
 #include "hpc_het_decorator.hpp"
 #include "InstructionIterator.hpp"
