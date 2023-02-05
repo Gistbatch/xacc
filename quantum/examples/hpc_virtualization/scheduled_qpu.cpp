@@ -13,17 +13,23 @@
  *******************************************************************************/
 #include "xacc.hpp"
 #include "future"
-
+#include "thread"
+using namespace std::chrono_literals;
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   xacc::set_verbose(true);
-  xacc::setLoggingLevel(1);
+  xacc::setLoggingLevel(2);
 
   // Get reference to the Accelerator
+  xacc::info("Accelerator init!");
   auto accelerator = xacc::getAccelerator("aer");
-  accelerator = xacc::getAcceleratorDecorator("hpc-async", accelerator);
+    xacc::info("AcceleratorDecorator init!");
+  accelerator = xacc::getAcceleratorDecorator("hpc-scheduled", accelerator);
   // Allocate some qubits
-  auto buffer = xacc::qalloc(2);
+  xacc::info("Alloc Qubits!");
+  auto buffer1 = xacc::qalloc(2);
+  auto buffer2 = xacc::qalloc(2);
+  // auto buffer3 = xacc::qalloc(2);
 
   auto quilCompiler = xacc::getCompiler("quil");
   auto ir = quilCompiler->compile(R"(__qpu__ void bell(qbit q) {
@@ -33,16 +39,37 @@ MEASURE 0 [0]
 MEASURE 1 [1]
 })",
                                   accelerator);
-  accelerator->execute(buffer, ir->getComposites()[0]);
+  //update before calling
+  xacc::info("Start Execution!");
+  std::string call1 = "my_call1";
+  std::string call2 = "my_call2";
+  accelerator->updateConfiguration({{"reference-handle", call1}});
+  accelerator->execute(buffer1, ir->getComposites()[0]);
+  accelerator->updateConfiguration({{"reference-handle",call2}});
+  accelerator->execute(buffer2, ir->getComposites()[0]);
+  // accelerator->updateConfiguration({{"reference-handle","my-call3"}});
+  // accelerator->execute(buffer3, ir->getComposites()[0]);
+
   xacc::info("Accelerator is not blocking!");
+  std::this_thread::sleep_for(10000ms);
   auto properties = accelerator->getProperties();
   // auto acc_future = accelerator->getProperties();
   // acc_future.get<int>("call-reference");
   auto acc_future =
-      properties.getPointerLike<std::future<void>>("call-reference");
-  acc_future->get();
-  buffer->print();
+      properties.get<std::shared_future<void>>(call1);
+  xacc::info("Got Reference to future");
+  
+  acc_future.get();
+  xacc::info("Got future");
+  buffer1->print();
 
+  acc_future =
+      properties.get<std::shared_future<void>>(call2);
+  xacc::info("2Got Reference to future");
+  
+  acc_future.get();
+  xacc::info("2Got future");
+  buffer2->print();
   xacc::Finalize();
 
   return 0;
