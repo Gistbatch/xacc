@@ -51,16 +51,15 @@ void HPCScheduledDecorator::execute(
   xacc::info("1Calling execute!");
   if (decoratedAccelerator) {
     xacc::info("1Creating job");
-    auto task = std::make_shared<MyTask>([&]{
-      xacc::info("1Calling Task: " + this->last);
-      
+    auto task = std::make_shared<MyTask>([&]{      
       this->decoratedAccelerator->execute(buffer, function);
       xacc::info("1Task called!");
+      buffer->print();
       return;
     });
     //std::shared_future<void> reference = task->get_future();
     //decorator_properties.insert(last, reference);
-    //xacc::info("Submitting job at " + last);
+    xacc::info("Submitting job at " + last);
     // auto shared_task = std::make_shared<std::packaged_task<void()>>(task);
     auto job = std::make_shared<std::pair<std::string, MyTaskPtr>>(last, task);
     jobs->push(job);
@@ -78,13 +77,14 @@ void HPCScheduledDecorator::execute(
     auto task = std::make_shared<MyTask>([&]{
       xacc::info("Calling Task: " + this->last);
       
-      //this->decoratedAccelerator->execute(buffer, functions);
+      this->decoratedAccelerator->execute(buffer, functions);
       xacc::info("Task called!");
+      buffer->print();
       return;
     });
     //std::shared_future<void> reference = task->get_future();
     //decorator_properties.insert(last, reference);
-    //xacc::info("Submitting job at " + last);
+    xacc::info("Submitting job with ref " + last);
     // auto shared_task = std::make_shared<std::packaged_task<void()>>(task);
     auto job = std::make_shared<std::pair<std::string, MyTaskPtr>>(last, task);
     jobs->push(job);
