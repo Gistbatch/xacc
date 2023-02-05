@@ -29,21 +29,20 @@ namespace xacc {
 
 namespace quantum {
 
-typedef std::packaged_task<void()>
-    MyTask;
+typedef std::packaged_task<void()> MyTask;
 typedef std::shared_ptr<MyTask> MyTaskPtr;
 typedef std::shared_ptr<std::pair<std::string, MyTaskPtr>> MyPair;
 
 class Compare {
 public:
-  
-  //bool operator()(MyTaskPtr first, MyTaskPtr second) {
+  // bool operator()(MyTaskPtr first, MyTaskPtr second) {
   bool operator()(MyPair first, MyPair second) {
     // implement some logic here
     return false;
   }
 };
-//typedef std::priority_queue<MyTaskPtr, std::vector<MyTaskPtr>, Compare> MyQueue;
+// typedef std::priority_queue<MyTaskPtr, std::vector<MyTaskPtr>, Compare>
+// MyQueue;
 typedef std::priority_queue<MyPair, std::vector<MyPair>, Compare> MyQueue;
 
 class HPCScheduledDecorator : public AcceleratorDecorator {
@@ -53,21 +52,22 @@ protected:
   // std::future<void> callReference;
   HeterogeneousMap decorator_properties;
   std::shared_ptr<MyQueue> jobs;
+  bool scheduler_running = true;
   // static void
   // handle_jobs(std::priority_queue<std::packaged_task<void()>*,std::vector<std::packaged_task<void()>*>,Compare>
   // *my_jobs) {
   void handle_jobs() {
     using namespace std::chrono_literals;
-    while (true) {
+    while (this->scheduler_running) {
       if (!(this->jobs->empty())) {
         xacc::info("Executing next job");
         auto pair = this->jobs->top();
         this->jobs->pop();
         auto job = std::get<1>(*pair);
         auto ref = std::get<0>(*pair);
-        job->operator()();
-        xacc::info("Submitting job at " + ref);
+        xacc::info("Update at ref " + ref);
         std::shared_future<void> job_future = job->get_future();
+        job->operator()();
         this->decorator_properties.insert(ref, job_future);
         xacc::info("Called Job");
       }
@@ -101,7 +101,10 @@ public:
   const std::string name() const override { return "hpc-scheduled"; }
   const std::string description() const override { return ""; }
 
-  ~HPCScheduledDecorator() override { my_thread.join(); }
+  ~HPCScheduledDecorator() override {
+    scheduler_running = false;
+    my_thread.join();
+  }
 };
 
 } // namespace quantum
