@@ -48,7 +48,7 @@ protected:
   std::thread worker_thread;
   HeterogeneousMap decorator_properties;
   std::shared_ptr<MyQueue> jobs;
-  bool scheduler_running = true;
+  bool scheduler_running = false;
 
   void handle_jobs() {
     using namespace std::chrono_literals;
@@ -91,8 +91,10 @@ public:
   const std::string description() const override { return ""; }
 
   ~HPCScheduledDecorator() override {
-    scheduler_running = false;
-    worker_thread.join();
+    if (scheduler_running) {
+      scheduler_running = false;
+      worker_thread.join();
+    }
   }
 };
 
