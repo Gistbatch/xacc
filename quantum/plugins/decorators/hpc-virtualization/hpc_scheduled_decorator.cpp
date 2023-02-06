@@ -24,10 +24,8 @@ void HPCScheduledDecorator::initialize(const HeterogeneousMap &params) {
   xacc::info("Calling init worker");
   if (params.keyExists<std::string>("reference-handle")) {
     last = params.get<std::string>("reference-handle");
-    // decorator_properties.insert(last, &void)
   }
   decoratedAccelerator->initialize(params);
-  // jobs = std::priority_queue();
   xacc::info("launching worker");
   MyQueue my_jobs;
   jobs = std::make_shared<MyQueue>(my_jobs);
@@ -51,16 +49,13 @@ void HPCScheduledDecorator::execute(
   xacc::info("1Calling execute!");
   if (decoratedAccelerator) {
     xacc::info("1Creating job");
-    auto task = std::make_shared<MyTask>([&]{      
+    auto task = std::make_shared<MyTask>([=]{
+      buffer->resetBuffer();
       this->decoratedAccelerator->execute(buffer, function);
-      xacc::info("1Task called!");
       buffer->print();
       return;
     });
-    //std::shared_future<void> reference = task->get_future();
-    //decorator_properties.insert(last, reference);
-    xacc::info("Submitting job at " + last);
-    // auto shared_task = std::make_shared<std::packaged_task<void()>>(task);
+    xacc::info("1Submitting job at " + last);
     auto job = std::make_shared<std::pair<std::string, MyTaskPtr>>(last, task);
     jobs->push(job);
     xacc::info("1Job submitted!");
@@ -74,18 +69,15 @@ void HPCScheduledDecorator::execute(
   xacc::info("Calling execute on multiple!");
   if (decoratedAccelerator) {
     xacc::info("Creating job");
-    auto task = std::make_shared<MyTask>([&]{
+    auto task = std::make_shared<MyTask>([=]{
       xacc::info("Calling Task: " + this->last);
-      
+      buffer->resetBuffer();
       this->decoratedAccelerator->execute(buffer, functions);
       xacc::info("Task called!");
       buffer->print();
       return;
     });
-    //std::shared_future<void> reference = task->get_future();
-    //decorator_properties.insert(last, reference);
     xacc::info("Submitting job with ref " + last);
-    // auto shared_task = std::make_shared<std::packaged_task<void()>>(task);
     auto job = std::make_shared<std::pair<std::string, MyTaskPtr>>(last, task);
     jobs->push(job);
     xacc::info("Job submitted!");
