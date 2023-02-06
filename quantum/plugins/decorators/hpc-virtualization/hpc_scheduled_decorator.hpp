@@ -31,18 +31,16 @@ namespace quantum {
 
 typedef std::packaged_task<void()> LambdaTask;
 typedef std::shared_ptr<LambdaTask> TaskPtr;
-typedef std::pair<std::string, TaskPtr> RefereceTaskPtrPair;
-typedef std::shared_ptr<RefereceTaskPtrPair> PairPtr;
 
 class Compare {
 public:
-  bool operator()(PairPtr first, PairPtr second) {
+  bool operator()(TaskPtr first, TaskPtr second) {
     // implement some logic here
     return false;
   }
 };
 
-typedef std::priority_queue<PairPtr, std::vector<PairPtr>, Compare> MyQueue;
+typedef std::priority_queue<TaskPtr, std::vector<TaskPtr>, Compare> MyQueue;
 
 class HPCScheduledDecorator : public AcceleratorDecorator {
 protected:
@@ -57,8 +55,7 @@ protected:
     while (this->scheduler_running) {
       if (!(this->jobs->empty())) {
         xacc::info("Executing next job...");
-        auto pair = this->jobs->top();
-        auto job = std::get<1>(*pair);
+        auto job = this->jobs->top();
         job->operator()();
         xacc::info("Job executed!");
         this->jobs->pop();
