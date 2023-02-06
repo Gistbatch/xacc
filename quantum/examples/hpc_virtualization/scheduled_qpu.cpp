@@ -14,7 +14,6 @@
 #include "xacc.hpp"
 #include "future"
 #include "thread"
-using namespace std::chrono_literals;
 int main(int argc, char **argv) {
   xacc::Initialize(argc, argv);
   xacc::set_verbose(true);
@@ -57,7 +56,6 @@ MEASURE 2 [2]
   accelerator->execute(buffer2, ir2->getComposites()[0]);
 
   xacc::info("Accelerator is not blocking!");
-  std::this_thread::sleep_for(10000ms);
   auto properties = accelerator->getProperties();
 
   auto acc_future = properties.get<std::shared_future<void>>(call1);
