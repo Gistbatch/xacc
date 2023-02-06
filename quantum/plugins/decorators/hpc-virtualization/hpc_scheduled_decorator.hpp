@@ -62,14 +62,13 @@ protected:
       if (!(this->jobs->empty())) {
         xacc::info("Executing next job");
         auto pair = this->jobs->top();
-        this->jobs->pop();
         auto job = std::get<1>(*pair);
         auto ref = std::get<0>(*pair);
-        xacc::info("Update at ref " + ref);
         std::shared_future<void> job_future = job->get_future();
         job->operator()();
         this->decorator_properties.insert(ref, job_future);
         xacc::info("Called Job");
+        this->jobs->pop();
       }
       xacc::info("Waiting for next job");
 
