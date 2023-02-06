@@ -36,13 +36,10 @@ MEASURE 1 [1]
   accelerator->execute(buffer, ir->getComposites()[0]);
   xacc::info("Accelerator is not blocking!");
   auto properties = accelerator->getProperties();
-  // auto acc_future = accelerator->getProperties();
-  // acc_future.get<int>("call-reference");
-  auto acc_future =
-      properties.getPointerLike<std::future<void>>("call-reference");
-  acc_future->get();
+  auto acc_future = properties.get<std::shared_future<void>>("call-reference");
+  acc_future.get();
   buffer->print();
-
+  xacc::info("Shutting down...");
   xacc::Finalize();
 
   return 0;
