@@ -29,48 +29,44 @@ namespace xacc {
 
 namespace quantum {
 
-typedef std::packaged_task<void()> MyTask;
-typedef std::shared_ptr<MyTask> MyTaskPtr;
-typedef std::shared_ptr<std::pair<std::string, MyTaskPtr>> MyPair;
+typedef std::packaged_task<void()> LambdaTask;
+typedef std::shared_ptr<LambdaTask> TaskPtr;
+typedef std::pair<std::string, TaskPtr> RefereceTaskPtrPair;
+typedef std::shared_ptr<RefereceTaskPtrPair> PairPtr;
 
 class Compare {
 public:
-  // bool operator()(MyTaskPtr first, MyTaskPtr second) {
-  bool operator()(MyPair first, MyPair second) {
+  bool operator()(PairPtr first, PairPtr second) {
     // implement some logic here
     return false;
   }
 };
-// typedef std::priority_queue<MyTaskPtr, std::vector<MyTaskPtr>, Compare>
-// MyQueue;
-typedef std::priority_queue<MyPair, std::vector<MyPair>, Compare> MyQueue;
+
+typedef std::priority_queue<PairPtr, std::vector<PairPtr>, Compare> MyQueue;
 
 class HPCScheduledDecorator : public AcceleratorDecorator {
 protected:
-  std::string last;
+  std::string current_job_reference;
   std::thread my_thread;
-  // std::future<void> callReference;
   HeterogeneousMap decorator_properties;
   std::shared_ptr<MyQueue> jobs;
   bool scheduler_running = true;
-  // static void
-  // handle_jobs(std::priority_queue<std::packaged_task<void()>*,std::vector<std::packaged_task<void()>*>,Compare>
-  // *my_jobs) {
+
   void handle_jobs() {
     using namespace std::chrono_literals;
     while (this->scheduler_running) {
       if (!(this->jobs->empty())) {
-        xacc::info("Executing next job");
+        xacc::info("Executing next job...");
         auto pair = this->jobs->top();
         auto job = std::get<1>(*pair);
         auto ref = std::get<0>(*pair);
         std::shared_future<void> job_future = job->get_future();
         job->operator()();
         this->decorator_properties.insert(ref, job_future);
-        xacc::info("Called Job");
+        xacc::info("Job executed!");
         this->jobs->pop();
       }
-      xacc::info("Waiting for next job");
+      xacc::info("Waiting for new jobs.");
 
       std::this_thread::sleep_for(1000ms);
     }

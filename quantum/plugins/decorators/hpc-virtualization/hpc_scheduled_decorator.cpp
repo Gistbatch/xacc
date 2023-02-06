@@ -22,7 +22,7 @@ namespace quantum {
 
 void HPCScheduledDecorator::initialize(const HeterogeneousMap &params) {
   if (params.keyExists<std::string>("reference-handle")) {
-    last = params.get<std::string>("reference-handle");
+    current_job_reference = params.get<std::string>("reference-handle");
   }
   decoratedAccelerator->initialize(params);
   xacc::info("Launching worker thread...");
@@ -35,7 +35,7 @@ void HPCScheduledDecorator::initialize(const HeterogeneousMap &params) {
 void HPCScheduledDecorator::updateConfiguration(
     const HeterogeneousMap &config) {
   if (config.keyExists<std::string>("reference-handle")) {
-    last = config.get<std::string>("reference-handle");
+    current_job_reference = config.get<std::string>("reference-handle");
   }
   decoratedAccelerator->updateConfiguration(config);
 }
@@ -45,13 +45,14 @@ void HPCScheduledDecorator::execute(
     const std::shared_ptr<CompositeInstruction> function) {
   if (decoratedAccelerator) {
     xacc::info("Creating new job ...");
-    auto task = std::make_shared<MyTask>([=] {
-      xacc::info("Calling Task for reference " + this->last + " ...");
+    auto task = std::make_shared<LambdaTask>([=] {
+      xacc::info("Calling Task for buffer " + buffer->name() + " ...");
       buffer->resetBuffer();
       this->decoratedAccelerator->execute(buffer, function);
       return;
     });
-    auto job = std::make_shared<std::pair<std::string, MyTaskPtr>>(last, task);
+    auto job =
+        std::make_shared<RefereceTaskPtrPair>(current_job_reference, task);
     jobs->push(job);
     xacc::info("Job submitted!");
   }
@@ -63,14 +64,15 @@ void HPCScheduledDecorator::execute(
     const std::vector<std::shared_ptr<CompositeInstruction>> functions) {
   if (decoratedAccelerator) {
     xacc::info("Creating new job ...");
-    auto task = std::make_shared<MyTask>([=] {
-      xacc::info("Calling Task for reference " + this->last + " ...");
+    auto task = std::make_shared<LambdaTask>([=] {
+      xacc::info("Calling Task for buffer " + buffer->name() + " ...");
       buffer->resetBuffer();
       this->decoratedAccelerator->execute(buffer, functions);
       xacc::info("Task called!");
       return;
     });
-    auto job = std::make_shared<std::pair<std::string, MyTaskPtr>>(last, task);
+    auto job =
+        std::make_shared<RefereceTaskPtrPair>(current_job_reference, task);
     jobs->push(job);
     xacc::info("Job submitted!");
   }

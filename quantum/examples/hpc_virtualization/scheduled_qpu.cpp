@@ -27,7 +27,8 @@ int main(int argc, char **argv) {
   accelerator = xacc::getAcceleratorDecorator("hpc-scheduled", accelerator);
   // Allocate some qubits
   xacc::info("Alloc Qubits!");
-  auto buffer1 = xacc::qalloc(3);
+  auto buffer1 = xacc::qalloc(2);
+  auto buffer2 = xacc::qalloc(3);
   auto quilCompiler = xacc::getCompiler("quil");
   auto ir1 = quilCompiler->compile(R"(__qpu__ void bell(qbit q) {
 H 0
@@ -53,7 +54,7 @@ MEASURE 2 [2]
   accelerator->updateConfiguration({{"reference-handle", call1}});
   accelerator->execute(buffer1, ir1->getComposites()[0]);
   accelerator->updateConfiguration({{"reference-handle", call2}});
-  accelerator->execute(buffer1, ir2->getComposites()[0]);
+  accelerator->execute(buffer2, ir2->getComposites()[0]);
 
   xacc::info("Accelerator is not blocking!");
   std::this_thread::sleep_for(10000ms);
@@ -69,7 +70,7 @@ MEASURE 2 [2]
   xacc::info("Getting reference to second future...");
   acc_future.get();
   xacc::info("Got future!");
-  buffer1->print();
+  buffer2->print();
   xacc::Finalize();
 
   return 0;
