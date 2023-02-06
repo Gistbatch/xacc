@@ -32,7 +32,7 @@ void HPCAsyncDecorator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::shared_ptr<CompositeInstruction> function) {
   if (decoratedAccelerator) {
-    callReference = std::async(std::launch::async, [&] {
+    callReference = std::async(std::launch::async, [=] {
       decoratedAccelerator->execute(buffer, function);
     });
     decorator_properties.insert("call-reference", &callReference);
@@ -44,7 +44,7 @@ void HPCAsyncDecorator::execute(
     std::shared_ptr<AcceleratorBuffer> buffer,
     const std::vector<std::shared_ptr<CompositeInstruction>> functions) {
   if (decoratedAccelerator) {
-    callReference = std::async(std::launch::async, [&] {
+    callReference = std::async(std::launch::async, [=] {
       decoratedAccelerator->execute(buffer, functions);
     });
     decorator_properties.insert("call-reference", &callReference);
