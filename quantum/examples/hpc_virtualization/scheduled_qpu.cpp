@@ -36,9 +36,7 @@ MEASURE 0 [0]
 MEASURE 1 [1]
 })",
                                    accelerator);
-  const std::string call1 = "my_call1";
-  accelerator->updateConfiguration({{"reference-handle", call1}});
-  accelerator->execute(buffer1, ir1->getComposites()[0]);
+
   auto ir2 = quilCompiler->compile(R"(__qpu__ void bell(qbit q) {
 H 0
 CX 0 1
@@ -50,26 +48,27 @@ MEASURE 2 [2]
                                    accelerator);
   // update before calling
   xacc::info("Start Execution!");
+  const std::string call1 = "my_call1";
   const std::string call2 = "my_call2";
-
+  accelerator->updateConfiguration({{"reference-handle", call1}});
+  accelerator->execute(buffer1, ir1->getComposites()[0]);
   accelerator->updateConfiguration({{"reference-handle", call2}});
   accelerator->execute(buffer1, ir2->getComposites()[0]);
 
   xacc::info("Accelerator is not blocking!");
   std::this_thread::sleep_for(10000ms);
   auto properties = accelerator->getProperties();
-  auto acc_future = properties.get<std::shared_future<void>>(call1);
-  xacc::info("Got Reference to future");
 
+  auto acc_future = properties.get<std::shared_future<void>>(call1);
+  xacc::info("Getting reference to first future...");
   acc_future.get();
-  xacc::info("Got future");
+  xacc::info("Got future!");
   buffer1->print();
 
   acc_future = properties.get<std::shared_future<void>>(call2);
-  xacc::info("2Got Reference to future");
-
+  xacc::info("Getting reference to second future...");
   acc_future.get();
-  xacc::info("2Got future");
+  xacc::info("Got future!");
   buffer1->print();
   xacc::Finalize();
 
