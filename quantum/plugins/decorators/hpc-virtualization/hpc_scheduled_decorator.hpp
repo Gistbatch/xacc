@@ -59,10 +59,7 @@ protected:
         xacc::info("Executing next job...");
         auto pair = this->jobs->top();
         auto job = std::get<1>(*pair);
-        auto ref = std::get<0>(*pair);
-        std::shared_future<void> job_future = job->get_future();
         job->operator()();
-        this->decorator_properties.insert(ref, job_future);
         xacc::info("Job executed!");
         this->jobs->pop();
       }

@@ -54,6 +54,8 @@ void HPCScheduledDecorator::execute(
     auto job =
         std::make_shared<RefereceTaskPtrPair>(current_job_reference, task);
     jobs->push(job);
+    std::shared_future<void> task_future = task->get_future();
+    this->decorator_properties.insert(current_job_reference, task_future);
     xacc::info("Job submitted!");
   }
   return;
@@ -74,6 +76,8 @@ void HPCScheduledDecorator::execute(
     auto job =
         std::make_shared<RefereceTaskPtrPair>(current_job_reference, task);
     jobs->push(job);
+    std::shared_future<void> task_future = task->get_future();
+    this->decorator_properties.insert(current_job_reference, task_future);
     xacc::info("Job submitted!");
   }
   return;
