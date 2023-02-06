@@ -26,7 +26,7 @@ namespace quantum {
 
 class HPCAsyncDecorator : public AcceleratorDecorator {
 protected:
-  std::future<void> callReference;
+  std::shared_future<void> callReference;
   HeterogeneousMap decorator_properties;
 
 public:
