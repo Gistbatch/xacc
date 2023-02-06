@@ -28,7 +28,7 @@ void HPCScheduledDecorator::initialize(const HeterogeneousMap &params) {
   xacc::info("Launching worker thread...");
   MyQueue my_jobs;
   jobs = std::make_shared<MyQueue>(my_jobs);
-  my_thread = std::thread(&HPCScheduledDecorator::handle_jobs, this);
+  worker_thread = std::thread(&HPCScheduledDecorator::handle_jobs, this);
   xacc::info("Worker launched!");
 }
 

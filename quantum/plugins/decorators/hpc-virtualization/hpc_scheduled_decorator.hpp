@@ -45,7 +45,7 @@ typedef std::priority_queue<TaskPtr, std::vector<TaskPtr>, Compare> MyQueue;
 class HPCScheduledDecorator : public AcceleratorDecorator {
 protected:
   std::string current_job_reference;
-  std::thread my_thread;
+  std::thread worker_thread;
   HeterogeneousMap decorator_properties;
   std::shared_ptr<MyQueue> jobs;
   bool scheduler_running = true;
@@ -92,7 +92,7 @@ public:
 
   ~HPCScheduledDecorator() override {
     scheduler_running = false;
-    my_thread.join();
+    worker_thread.join();
   }
 };
 
